@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Mission to Mars</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <!-- <link rel="stylesheet" type="text/css" href="style.css"> -->
+  <style>
+      #toppage{
+    background: url("https://d2pn8kiwq2w21t.cloudfront.net/images/jpegPIA24765.width-1440.jpg") center center / cover no-repeat;}
+
+    .btn{
+    color:white;
+    background-color:rgb(67, 107, 216);
+    border-color:white;}
+
+    .btn:hover{
+    border-color: white;
+    background-color: darkred;}
+
+    .container-fluid{
+    background-color: lightgray;}
+
+    .boxed{
+    border: 1px solid black;
+    background-color: white;
+    width: 80%;
+    margin:auto;}
+
+    .box{
+    background-color: white;
+    width: fit-content;}
+
+  </style>
+</head>
+
+<body>
+    <!-- Container for the title and scraper button -->
+    <div class="container-fluid" >
+      <div class="jumbotron text-center" id="toppage">
+        <h1 style='color:white'><b>Mission to Mars</b></h1>
+        <p><a class="btn btn-primary btn-lg" href="http://127.0.0.1:5000/scrape" role="button">Click for the latest news</a></p>
+      </div>
+    </div>
+
+      <!-- Latest Mars news --> 
+  <div class='container-fluid'>
+    <div class="row justify-content-center">
+      <div class="col-md-12">
+        <div class="media">
+          <div class="media-body" style="text-align:center;">
+            <div class="boxed">
+            <h2><b>Latest Mars News</b></h2>
+            <h4><b>{{ Mars.news_title }}</b></h4>
+            <h5><p>{{ Mars.news_p }}</p></h5>
+            <h5><a class="nav-link" href="https://mars.nasa.gov/news/" target="_blank" style="color: darkred;" >- Click here for Mars News Website -</a></h5>
+            </div>
+            <br>
+            <hr>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class='container-fluid' >
+    <div class="row" >
+      <!-- Featured Mars image -->
+      <div class="col-md-8">
+        <h2><b>Current Featured Mars Image</b></h2>
+        <img src="{{ Mars.Featured_mars_image }}" alt="Mars" class="img-fluid img-responsive">
+      </div>
+        <!-- Mars facts -->
+      <div class="col-md-4">
+        <h2><b>Mars Facts</b></h2>
+        <div class="box">
+          {{ Mars.html_facts | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+      <!-- Mars hemispheres-->
+      <div class='container-fluid' >
+        <div class="row" style="margin-top:80px;">
+          <div class="page-header">
+            <h2 class="text-center"><b>Mars Hemispheres Images</b></h2>
+            <h4 class="text-center"><b>These images are mosics of various hemispheres of Mars projected into point perspecitve. This is a view similar to which one would see from a spacecraft. </b></h4>
+            <h5 style="text-align:center;"><a class="nav-link" href="https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars" target="_blank" style="color: darkred;" >- Click here to learn more about each image -</a></h5>
+          </div>
+          {% for hemi in Mars.hemi_image_url %}
+          <div class="col-md-6" >
+              <div class="thumbnail" >
+                <img src="{{hemi.img_url}}" alt="Hemisphere" width="800" height="800">
+                <div class="caption">
+                    <h3 class="text-center"><b>{{hemi.title}}</b></h3>
+                </div>
+              </div>
+          </div>
+          {% endfor %}
+    
+        </div>
+      </div>
+    </body>
+    </html>
