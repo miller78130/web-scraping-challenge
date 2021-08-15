@@ -14,7 +14,7 @@ def init_browser():
 def scrape():
     browser = init_browser()
 
-    # NASA Mars News define and retrive
+    # NASA Mars News
     url = 'https://mars.nasa.gov/news/'
     browser.visit(url)
     time.sleep(1)
@@ -25,16 +25,15 @@ def scrape():
     news_p = mysoup.find('li', class_='slide').find('div', class_='article_teaser_body').text
 
     # Mars Images define and retrive
-    image_url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
+    #image_url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
     
 
 
 
     # Mars Facts
-    # readtables on mars facts page
     facts_url = 'https://space-facts.com/mars/'
     fact_table = pd.read_html(facts_url)
-    # Filter to table I want to work with
+    # Filter
     fact_df = fact_table[0]
     # Rename columns
     fact_df.columns = ["Description", "Mars"]
@@ -45,31 +44,63 @@ def scrape():
     html_facts = html_facts.replace('\n', '')
 
     # Mars Hemispheres
-    # Set up for retriving browser
-    hemi_url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
-    browser.visit(hemi_url)
+    url = "https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars"
+    browser.visit(url)
+    
+    # Updating Beautiful Soup
     html = browser.html
-    hemi_soup = bs(html, 'html.parser')
-    # Set up for dictionaries
-    hemi_image_urls = []
-    # Original url for images
-    base_url ='https://astrogeology.usgs.gov/'
-    # Soup set up
-    hemis = hemi_soup.find_all('div', class_='item')
-    # Loop set up for each title and image
-    for hemi in hemis:
-        title = hemi.find('h3').text
-        browser.links.find_by_partial_text("Hemisphere Enhanced")
-        img_html = browser.html
-        img_soup = bs(img_html, 'html.parser')
-        imgs_url = img_soup.find('img', class_="thumb")['src']
-        image_url = base_url+imgs_url
-        hemi_image_urls.append({"title": title, "image_url": image_url})
+    soup = bs(html, "html.parser")
+    #Find image titles
+    title = []
+    i = 0
+    while i < 4:
+        hemi = soup.find_all('h3')[i].text.strip()
+        # This strips "Enhanced" off the end of the string
+        hemi = hemi[:-9]
+        # Append to my list
+        title.append(hemi)
+        i += 1
+    # URL paths
+    paths = []
+    i = 0
+    while i < 8:
+        path = soup.find_all('a', class_ = 'itemLink product-item')[i]['href']
+        paths.append(path)
+        i+=2
+    #path for each new browser visit
+    base_url = "https://astrogeology.usgs.gov"
 
+    #list to contain full URLs
+    url_list = []
+
+    #full URLs
+    for path in paths:
+        url = base_url + path
+        url_list.append(url)
+
+    image_url = []
+    for url in url_list:
+        
+        browser.visit(url)
+        html = browser.html
+        soup = bs(html, "html.parser")
+    
+        # Pull out the image link 
+        img_source = soup.find('img', class_ = "wide-image")['src']
+        img_url = base_url + img_source        
+        # Add to list
+        image_url.append(img_url)
+    hemi_image_urls = []
+    i = 0
+    while i < 4:
+        hemi_image_urls.append(
+        {'title': title[i], 'image_url': image_url[i]})
+        i += 1
+        
     # Close browser after scraping
     browser.quit()
     
-    # Creating dictionary for all of the scrapped info
+    # Creating dictionary
     mars_data={
         "Mars_News_Headline": news_title,
         "Mars_News_Tease": news_p,
