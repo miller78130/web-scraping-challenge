@@ -53,16 +53,21 @@ def scrape():
     hemi_image_urls = []
     # Base image url
     base_img_url = "https://astrogeology.usgs.gov/"
+
     # Set up soup
     hemis = soup.find_all('div', class_='item')
+
     # Setting up loop to get title and url
     for hemi in hemis:
         title = hemi.find('h3').text    
         browser.links.find_by_partial_text("Hemisphere Enhanced")
-        jpg_html = browser.html
-        jpg_soup = bs(jpg_html, "html.parser")
-        jpgs_url = jpg_soup.find("img", class_="wide-image")['src']    
-        images_url = base_img_url+jpgs_url
+        text_html = browser.html
+        link_soup = bs(text_html, "html.parser")
+        link_url = link_soup.find("a", class_="itemLink")["href"]
+        full_soup = bs(link_url, "html.parser")
+        jpg_url = full_soup.find("img", class_="wide-image")["src"]
+    
+        images_url = base_img_url + jpg_url
         hemi_image_urls.append({"title": title, 'img_url': images_url})
 
 # Close browser after scraping
