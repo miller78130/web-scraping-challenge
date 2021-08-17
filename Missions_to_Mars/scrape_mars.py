@@ -25,8 +25,8 @@ def scrape():
     news_p = mysoup.find('li', class_='slide').find('div', class_='article_teaser_body').text
 
 # Mars Images define and retrive
-    #image_url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
-    
+    #featured_image_url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
+    # 404 ERROR
 
 
 
@@ -49,27 +49,48 @@ def scrape():
     # Updating Beautiful Soup
     html = browser.html
     soup = bs(html, "html.parser")
-    #Find image titles
-    hemi_image_urls = []
-    # Base image url
-    base_img_url = "https://astrogeology.usgs.gov/"
-
-    # Set up soup
-    hemis = soup.find_all('div', class_='item')
-
-    # Setting up loop to get title and url
-    for hemi in hemis:
-        title = hemi.find('h3').text    
-        browser.links.find_by_partial_text("Hemisphere Enhanced")
-        text_html = browser.html
-        link_soup = bs(text_html, "html.parser")
-        link_url = link_soup.find("a", class_="itemLink")["href"]
-        full_soup = bs(link_url, "html.parser")
-        jpg_url = full_soup.find("img", class_="wide-image")["src"]
+    title = []
     
-        images_url = base_img_url + jpg_url
-        hemi_image_urls.append({"title": title, 'img_url': images_url})
+    i = 0
+    while i < 4:
+        hemisphere = soup.find_all('h3')[i].text.strip()
+        # This strips "Enhanced" off the end of the string
+        hemisphere = hemisphere[:-9]
+        # Append to my list
+        title.append(hemisphere)
+        i += 1
+    
+    paths = []
+    i = 0
+    while i < 8:
+        path = soup.find_all('a', class_ = 'itemLink product-item')[i]['href']
+        paths.append(path)
+        i+=2
+    base_url = "https://astrogeology.usgs.gov"
+    url_list = []
 
+    for path in paths:
+        url = base_url + path
+        url_list.append(url)
+
+    image_url = []
+
+    for url in url_list:        
+        browser.visit(url)
+        html = browser.html
+        soup = bs(html, "html.parser")
+        img_source = soup.find('img', class_ = "wide-image")['src']
+
+        img_url = base_url + img_source        
+        # Add to list
+        image_url.append(img_url)
+
+    hemi_image_urls = []
+    i = 0
+    while i < 4:
+        hemi_image_urls.append(
+        {'title': title[i], 'image_url': image_url[i]})
+        i += 1
 # Close browser after scraping
     browser.quit()
     
